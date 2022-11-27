@@ -19,15 +19,9 @@ class TestYandexSearch:
             assert False
 
     # Ввод в поисковую строку "Тензор"
-    # def test_search_field_text(self):
-    #     iframe_path = self.driver.find_element('xpath', "//*[@class = 'dzen-search-arrow-common__frame']")
-    #     self.driver.switch_to.frame(iframe_path)
-    #     search_field = self.driver.find_element('xpath', '//input[@name="text"]')
-    #     search_field.send_keys("Тензор")
-    #     Messages.check_search_field_text(search_field, 'Тензор')
-
     def test_search_field_text(self):
-        page.switch_to_iframe(self)
+        iframe_path = self.driver.find_element('xpath', "//*[@class = 'dzen-search-arrow-common__frame']")
+        self.driver.switch_to.frame(iframe_path)
         search_field = self.driver.find_element('xpath', '//input[@name="text"]')
         search_field.send_keys("Тензор")
         Messages.check_search_field_text(search_field, 'Тензор')
