@@ -19,7 +19,7 @@ class TestYandexSearch:
 
     def test_yandex_images_search(self):
         iframe_path = self.driver.find_element('xpath', "//*[@class = 'dzen-search-arrow-common__frame']")
-        self.driver.switch_to.frame(pages_elements_search.SearchHelper.iframe_path)
+        self.driver.switch_to.frame(iframe_path)
         search_field = self.driver.find_element('xpath', '//input[@name="text"]')
         search_field.send_keys("Яндекс картинки")
         search_field.send_keys(Keys.RETURN)
@@ -42,7 +42,7 @@ class TestYandexSearch:
     def test_click_first_image(self):
         first_image = self.driver.find_element('xpath', '//img[@class = "serp-item__thumb justifier__thumb"]')
         first_image.click()
-        assert (self.driver.find_element('xpath', '//img[@class ="MMImage-Origin"]'))
+        assert (self.driver.find_element('xpath', '//img[@class ="MMImage-Origin"]')), 'Изображение не открылось'
 
     def test_change_image(self):
         src_first_image = self.driver.find_element('xpath', '//img[@class = "MMImage-Origin" and @src]').text
