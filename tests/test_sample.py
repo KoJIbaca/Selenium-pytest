@@ -1,44 +1,42 @@
 import pytest
-from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
-import gettext
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import requests
+from info_message import Messages
+from selenium.webdriver import Keys
+from pages_elements_search import SearchHelper as page
 
-driver = webdriver.Chrome(executable_path = "G:/Documents/Курсы/Projects/ya(pytest)/drivers/chromedriver.exe")
-driver.maximize_window()
-driver.implicitly_wait(10)
 
-def url_visit():
-    driver.get("https://yandex.ru")
-    return driver.title()
+@pytest.mark.usefixtures("setup")
+class TestYandexSearch:
 
-def search_field_visibility ():    
-    try:
-        driver.find_element_by_xpath('//*[@id="text"]')
-    except NoSuchElementException:
-        return False
-    return True
+    # Проверка стаутс-кода сервера
+    def test_server_response(self):
+        response = requests.get("https://yandex.ru")
+        if response.status_code == 200:
+            print('Запрос выполнен успешно!')
+            assert True
+        else:
+            print('Запрос не завершился успехом!')
+            assert False
 
-def search_field_text ():
-    driver.find_element_by_xpath('//*[@id="text"]').send_keys('Тензор')
-    assert(driver.find_element_by_xpath('//*[@id="text"]').gettext.contains("Тензор")) == True    
+    # Ввод в поисковую строку "Тензор"
+    def test_search_field_text(self):
+        iframe_path = self.driver.find_element('xpath', "//*[@class = 'dzen-search-arrow-common__frame']")
+        self.driver.switch_to.frame(iframe_path)
+        search_field = self.driver.find_element('xpath', '//input[@name="text"]')
+        search_field.send_keys("Тензор")
+        Messages.check_search_field_text(search_field, 'Тензор')
 
-def check_suggest_field():
-    locator = (By.CSS_SELECTOR, 'body > div.mini-suggest__popup.mini-suggest__popup_svg_yes.mini-suggest__popup_theme_tile')     
-    elements = WebDriverWait(driver).until(EC.visibility_of_element_located(locator))
-    assert elements
+    # Проверка появления suggest-меню и выполнение поиска по слову "Тензор"
+    def test_visibility_popup_menu(self):
+        popup_menu = self.driver.find_element('xpath', "//*[@class='body_search_yes']")
+        Messages.dropdown_visibility(popup_menu)
+        search = self.driver.find_element('xpath', '//input[@name="text"]')
+        search.send_keys(Keys.RETURN)
 
-def seacrh_click():
-    driver.find_element_by_xpath('/html/body/div[1]/div[3]/div[3]/div/div[2]/fwap/fwap/fdpprt/div/div/div[1]/div[2]/form/div[2]/button').click()
-
-def assert_results():
-    result_field = driver.find_elements_by_css_selector('body > div.main.serp.i-bem > div.main__center > div.main__content > div.content.content_has-branding-first.i-bem > div.content__left.content__left_has-branding-first')
-    url_list = [elem.text.strip() for elem in result_field[:5]]
-
-    if "Тензор" not in url_list:
-        raise Exception('сайта "Тензор" нет в первых 5 пунктах')
-
-driver.close()
-driver.quit()
+    # Проверка первой ссылки
+    def test_check_first_link(self):
+        self.driver.switch_to.window(self.driver.window_handles[1])
+        service_menu = self.driver.find_element('xpath', '//*[@class= "main__content"]')
+        Messages.search_results(service_menu)
+        first_link = self.driver.find_element('xpath', "//a[@accesskey='1' and @href='https://tensor.ru/']")
+        Messages.check_first_link(first_link)
