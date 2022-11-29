@@ -2,11 +2,10 @@ import pytest
 import requests
 from selenium.webdriver import Keys
 from info_message import Messages
-import pages_elements_search
 
 
 @pytest.mark.usefixtures("setup")
-class TestYandexSearch:
+class TestYandexImages:
 
     def test_server_response(self):
         response = requests.get("https://yandex.ru")
@@ -28,6 +27,8 @@ class TestYandexSearch:
         self.driver.switch_to.window(self.driver.window_handles[1])
         yandex_images = self.driver.find_element('xpath', '//a[@accesskey="1" and @href="https://yandex.ru/images/"]')
         yandex_images.click()
+
+    def test_yandex_images_visit(self):
         self.driver.switch_to.window(self.driver.window_handles[2])
         images_url = self.driver.current_url
         Messages.check_yandex_images_url(images_url)
@@ -44,19 +45,20 @@ class TestYandexSearch:
         first_image.click()
         assert (self.driver.find_element('xpath', '//img[@class ="MMImage-Origin"]')), 'Изображение не открылось'
 
+    @pytest.mark.dependency(name='change_image')
     def test_change_image(self):
-        src_first_image = self.driver.find_element('xpath', '//img[@class = "MMImage-Origin" and @src]').text
+        pytest.src_first_image = self.driver.find_element('xpath', '//img[@class = "MMImage-Origin" and @src]').text
         next_button = self.driver.find_element('xpath', '//*[contains(@class, "CircleButton_type_next")]')
         next_button.click()
         src_second_image = self.driver.find_element('xpath', '//img[@class = "MMImage-Origin" and @src]').text
-        assert src_first_image != src_second_image, 'Изображение не поменялось'
+        assert pytest.src_first_image != src_second_image, 'Изображение не поменялось'
 
+    @pytest.mark.dependency(depends=["TestYandexImages::test_change_image"])
     def test_back_image(self):
         src = self.driver.find_element('xpath', '//img[@class = "MMImage-Origin" and @src]').text
         prev_button = self.driver.find_element('xpath', '//*[contains(@class, "CircleButton_type_prev")]')
         prev_button.click()
-        src_change = self.driver.find_element('xpath', '//img[@class = "MMImage-Origin" and @src]').text
-        assert src != src_change, 'Изображение не поменялось'
+        assert pytest.src_first_image != src, 'Изображение не поменялось'
 
 
     

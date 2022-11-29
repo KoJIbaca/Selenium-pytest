@@ -24,5 +24,5 @@
 и коллекции изображений (test_ya_pictures.py).
 
 <h2 id = library>Сторонние библиотеки и версия chromedriver</h2>
-В качестве сторонних библиотек применен только <code>requests</code>. Автотест написан
+В качестве сторонних библиотек применен <code>requests</code>, и фреймворки <code>pytest-dependency</code>, <code>pytest-depence</code>. Автотест написан
 с использованием selenium 4.3.0 и chromedriver версии 107.0.5304.62. В качестве браузера выбран Chrome.
